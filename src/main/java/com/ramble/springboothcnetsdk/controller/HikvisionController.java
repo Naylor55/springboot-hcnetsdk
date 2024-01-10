@@ -1,10 +1,7 @@
 package com.ramble.springboothcnetsdk.controller;
 
 import com.alibaba.fastjson2.JSON;
-import com.ramble.springboothcnetsdk.controller.param.BaseParam;
-import com.ramble.springboothcnetsdk.controller.param.ChangeDirectionParam;
-import com.ramble.springboothcnetsdk.controller.param.ChangePTZParam;
-import com.ramble.springboothcnetsdk.controller.param.GetPTZParam;
+import com.ramble.springboothcnetsdk.controller.param.*;
 import com.ramble.springboothcnetsdk.dto.PtzDto;
 import com.ramble.springboothcnetsdk.support.HikvisionSupport;
 import io.swagger.annotations.Api;
@@ -84,9 +81,9 @@ public class HikvisionController {
 
     @ApiOperation("获取屏幕快照")
     @PostMapping("/screenshot")
-    public void getScreenshot(@RequestBody BaseParam param) {
+    public void getScreenshot(@RequestBody GetScreenshotParam param) {
         try {
-            hikvisionSupport.getScreenshot(param.getIp(), param.getUsername(), param.getPassword());
+            hikvisionSupport.getScreenshot(param.getIp(), param.getUsername(), param.getPassword(), param.getFilePath());
         } catch (Exception e) {
             log.error("getPtz-error,e={},stackTrace={}", e.getMessage(), e.getStackTrace());
             e.printStackTrace();

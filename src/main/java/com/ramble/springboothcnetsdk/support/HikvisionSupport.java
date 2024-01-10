@@ -2,13 +2,17 @@ package com.ramble.springboothcnetsdk.support;
 
 import com.alibaba.fastjson2.JSON;
 import com.ramble.springboothcnetsdk.dto.LoginResultDto;
+import com.ramble.springboothcnetsdk.dto.MessageCallBackUserDataDto;
 import com.ramble.springboothcnetsdk.dto.PtzDto;
 import com.ramble.springboothcnetsdk.handler.exception.BizServiceException;
 import com.ramble.springboothcnetsdk.lib.HCNetSDK;
 import com.ramble.springboothcnetsdk.util.OSUtils;
+import com.sun.jna.Memory;
+import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -84,6 +88,15 @@ public class HikvisionSupport {
         }
         //初始化sdk
         boolean isOk = hCNetSDK.NET_DVR_Init();
+        //注册报警信息回调
+        HCNetSDK.FMSGCallBack_V31 callBackV31 = new MsgCallBackFor30();
+        MessageCallBackUserDataDto userData = new MessageCallBackUserDataDto();
+        userData.setDesc("用户自定义数据");
+        userData.setDateTime(LocalDateTime.now());
+        Memory m = new Memory(1024);
+        m.setWideString(0, JSON.toJSONString(userData));
+        hCNetSDK.NET_DVR_SetDVRMessageCallBack_V31(callBackV31, m);
+
         hCNetSDK.NET_DVR_SetConnectTime(10, 1);
         hCNetSDK.NET_DVR_SetReconnect(100, true);
         if (!isOk) {
@@ -92,6 +105,7 @@ public class HikvisionSupport {
             log.info("============== InitHikvisionSDK init success ====================");
         }
     }
+
 
 
     /**
@@ -319,13 +333,14 @@ public class HikvisionSupport {
      * @param m_sDeviceIP
      * @param m_sUsername
      * @param m_sPassword
+     * @param filePath    文件存放路径，路径+文件名+文件后缀（jpeg）
      * @throws BizServiceException
      */
-    public void getScreenshot(String m_sDeviceIP, String m_sUsername, String m_sPassword) throws BizServiceException {
+    public void getScreenshot(String m_sDeviceIP, String m_sUsername, String m_sPassword, String filePath) throws BizServiceException {
         int loginHandler = login(m_sDeviceIP, m_sUsername, m_sPassword);
         HCNetSDK.NET_DVR_JPEGPARA jpegParam = new HCNetSDK.NET_DVR_JPEGPARA();
         jpegParam.wPicQuality = 0;
-        String filePath = "D:\\temp\\1.jpeg";
+//        String filePath = "D:\\temp\\1.jpeg";
         boolean result = hCNetSDK.NET_DVR_CaptureJPEGPicture(loginHandler, 1, jpegParam, filePath.getBytes());
         if (!result) {
             int i = hCNetSDK.NET_DVR_GetLastError();
