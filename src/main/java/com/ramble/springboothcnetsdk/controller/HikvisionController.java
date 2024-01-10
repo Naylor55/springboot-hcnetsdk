@@ -1,6 +1,7 @@
 package com.ramble.springboothcnetsdk.controller;
 
 import com.alibaba.fastjson2.JSON;
+import com.ramble.springboothcnetsdk.controller.param.ChangeDirectionParam;
 import com.ramble.springboothcnetsdk.controller.param.ChangePTZParam;
 import com.ramble.springboothcnetsdk.controller.param.GetPTZParam;
 import com.ramble.springboothcnetsdk.dto.PtzDto;
@@ -66,6 +67,17 @@ public class HikvisionController {
             log.error("getPtz-error,e={},stackTrace={}", e.getMessage(), e.getStackTrace());
             e.printStackTrace();
             return null;
+        }
+    }
+
+    @ApiOperation("云台方向控制")
+    @PostMapping("/direction")
+    public void changeDirection(@RequestBody ChangeDirectionParam param) {
+        try {
+            hikvisionSupport.changeDirection(param.getIp(), param.getUsername(), param.getPassword(), null, param.getCommand(), param.getAction(), param.getSpeed());
+        } catch (Exception e) {
+            log.error("getPtz-error,e={},stackTrace={}", e.getMessage(), e.getStackTrace());
+            e.printStackTrace();
         }
     }
 

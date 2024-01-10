@@ -282,7 +282,33 @@ public class HikvisionSupport {
         boolean setResult = hCNetSDK.NET_DVR_SetDVRConfig(loginHandler, HCNetSDK.NET_DVR_SET_PTZPOS, 1, param.getPointer(), param.size());
         if (!setResult) {
             int i = hCNetSDK.NET_DVR_GetLastError();
-            log.debug("设置PTZ坐标信息失败，错误码：{}", i);
+            IntByReference errorInt = new IntByReference(i);
+            String msg = hCNetSDK.NET_DVR_GetErrorMsg(errorInt);
+            log.debug("设置PTZ坐标信息失败，错误码：{}，{}", i, msg);
+        }
+        loginOut(loginHandler);
+    }
+
+    /**
+     * 改变方向
+     *
+     * @param m_sDeviceIP
+     * @param m_sUsername
+     * @param m_sPassword
+     * @param channelId   通道id
+     * @param command     控制命令：21=云台上仰，24=云台右转，11=焦距变大，64=云台上仰和左转和焦距变大(倍率变大)
+     * @param action      动作：0=开始，1=停止
+     * @param speed       速度：1-7
+     * @throws BizServiceException
+     */
+    public void changeDirection(String m_sDeviceIP, String m_sUsername, String m_sPassword, Integer channelId, int command, int action, int speed) throws BizServiceException {
+        int loginHandler = login(m_sDeviceIP, m_sUsername, m_sPassword);
+        boolean result = hCNetSDK.NET_DVR_PTZControlWithSpeed_Other(loginHandler, 1, command, action, speed);
+        if (!result) {
+            int i = hCNetSDK.NET_DVR_GetLastError();
+            IntByReference errorInt = new IntByReference(i);
+            String msg = hCNetSDK.NET_DVR_GetErrorMsg(errorInt);
+            log.debug("changeDirection失败，错误码：{}，{}", i, msg);
         }
         loginOut(loginHandler);
     }
