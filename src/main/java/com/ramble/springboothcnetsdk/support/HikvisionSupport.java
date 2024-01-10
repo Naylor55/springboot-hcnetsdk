@@ -103,7 +103,7 @@ public class HikvisionSupport {
      * @return 登录成功的唯一标识
      */
     public Integer login(String m_sDeviceIP, String m_sUsername, String m_sPassword) throws BizServiceException {
-        log.info("LoginService-login-param={}", m_sDeviceIP);
+        log.info("login-param={}", m_sDeviceIP);
         HCNetSDK.NET_DVR_USER_LOGIN_INFO m_strLoginInfo = new HCNetSDK.NET_DVR_USER_LOGIN_INFO();//设备登录信息
 
         m_strLoginInfo.sDeviceAddress = new byte[HCNetSDK.NET_DVR_DEV_ADDRESS_MAX_LEN];
@@ -129,7 +129,7 @@ public class HikvisionSupport {
         } else {
             int iCharEncodeType = m_strDeviceInfo.byCharEncodeType;
             log.info("[HK] login success iCharEncodeType:{}", iCharEncodeType);
-            log.info("设备信息={}", JSON.toJSONString(m_strDeviceInfo));
+//            log.info("设备信息={}", JSON.toJSONString(m_strDeviceInfo));
             return loginHandler;
         }
     }
@@ -247,6 +247,11 @@ public class HikvisionSupport {
             ptzDto.setP(Integer.parseInt(Integer.toHexString(oldPtz.wPanPos).trim()) * 0.1f);
             ptzDto.setT((Integer.parseInt(Integer.toHexString(oldPtz.wTiltPos).trim())) * 0.1f);
             ptzDto.setZ((Integer.parseInt(Integer.toHexString(oldPtz.wZoomPos).trim())) * 0.1f);
+        } else {
+            int i = hCNetSDK.NET_DVR_GetLastError();
+            IntByReference errorInt = new IntByReference(i);
+            String msg = hCNetSDK.NET_DVR_GetErrorMsg(errorInt);
+            log.error("getPtz-fail,errorCode={},errorMsg={}", i, msg);
         }
         log.info("getPtz-response={}", ptzDto.toString());
         hCNetSDK.NET_DVR_Logout(loginHandler);
@@ -256,6 +261,7 @@ public class HikvisionSupport {
 
     /**
      * 该表ptz
+     *
      * @param m_sDeviceIP
      * @param m_sUsername
      * @param m_sPassword

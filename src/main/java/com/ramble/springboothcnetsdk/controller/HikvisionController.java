@@ -5,6 +5,8 @@ import com.ramble.springboothcnetsdk.controller.param.ChangePTZParam;
 import com.ramble.springboothcnetsdk.controller.param.GetPTZParam;
 import com.ramble.springboothcnetsdk.dto.PtzDto;
 import com.ramble.springboothcnetsdk.support.HikvisionSupport;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
  * @date 2024/1/10 13:08
  */
 
-
+@Api(tags = "海康 - api")
 @Slf4j
 @RestController
 @RequestMapping("/hikvision")
@@ -36,6 +38,7 @@ public class HikvisionController {
      * @return
      * @throws InterruptedException
      */
+    @ApiOperation("改变ptz")
     @PutMapping("/ptz")
     public Boolean changePtz(@RequestBody ChangePTZParam param) {
         try {
@@ -53,11 +56,11 @@ public class HikvisionController {
      *
      * @return
      */
+    @ApiOperation("获取ptz")
     @PostMapping("/ptz")
     public PtzDto getPtz(@RequestBody GetPTZParam param) {
         try {
-            PtzDto ptz = hikvisionSupport.getPtz(param.getIp(), param.getUsername(), param.getPassword(), param.getChannelId());
-            log.info("ptzService.getPtz-result={}", JSON.toJSONString(ptz));
+            PtzDto ptz = hikvisionSupport.getPtz(param.getIp(), param.getUsername(), param.getPassword(), null);
             return ptz;
         } catch (Exception e) {
             log.error("getPtz-error,e={},stackTrace={}", e.getMessage(), e.getStackTrace());
