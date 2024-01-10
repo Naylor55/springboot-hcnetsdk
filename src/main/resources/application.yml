@@ -1,2 +1,7 @@
 server:
   port: 9009
+
+
+
+hikvision:
+  enable: 1
