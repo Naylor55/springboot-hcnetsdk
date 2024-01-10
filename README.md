@@ -1,22 +1,26 @@
-# Getting Started
+ # 概述
+ 这是一个SpringBoot工程，集成了海康网络设备sdk的基础功能，可以作为集成or对接海康摄像头、NVR、视频服务器等的示例
+ 
 
-### Reference Documentation
-For further reference, please consider the following sections:
+# 功能
 
-* [Official Gradle documentation](https://docs.gradle.org)
-* [Spring Boot Gradle Plugin Reference Guide](https://docs.spring.io/spring-boot/docs/2.7.6/gradle-plugin/reference/html/)
-* [Create an OCI image](https://docs.spring.io/spring-boot/docs/2.7.6/gradle-plugin/reference/html/#build-image)
-* [Spring Web](https://docs.spring.io/spring-boot/docs/2.7.6/reference/htmlsingle/#web)
+* 内嵌海康网络设备sdk v6.1
+* 提供HCNetSDK接口，用于和Native代码（dll or so）进行交互
+* 获取ptz
+* 改变ptz
 
-### Guides
-The following guides illustrate how to use some features concretely:
 
-* [Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
-* [Serving Web Content with Spring MVC](https://spring.io/guides/gs/serving-web-content/)
-* [Building REST services with Spring](https://spring.io/guides/tutorials/rest/)
+# 特点
 
-### Additional Links
-These additional references should also help you:
+* 通过条件装配灵活初始化 sdk
+* 可用于枪机、球机、鹰眼等
+* 封装HikvisionSupport作为边缘层和SDK交互
+* 合理的工程目录接口和代码编排
+* 完善的注释
 
-* [Gradle Build Scans – insights for your project's build](https://scans.gradle.com#gradle)
+# 如何使用
+
+* git clone 
+* refresh gradle dependencies
+* run  or  debug 
 
