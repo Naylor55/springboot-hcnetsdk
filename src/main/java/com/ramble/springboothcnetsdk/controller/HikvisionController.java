@@ -1,6 +1,7 @@
 package com.ramble.springboothcnetsdk.controller;
 
 import com.alibaba.fastjson2.JSON;
+import com.ramble.springboothcnetsdk.controller.param.BaseParam;
 import com.ramble.springboothcnetsdk.controller.param.ChangeDirectionParam;
 import com.ramble.springboothcnetsdk.controller.param.ChangePTZParam;
 import com.ramble.springboothcnetsdk.controller.param.GetPTZParam;
@@ -75,6 +76,17 @@ public class HikvisionController {
     public void changeDirection(@RequestBody ChangeDirectionParam param) {
         try {
             hikvisionSupport.changeDirection(param.getIp(), param.getUsername(), param.getPassword(), null, param.getCommand(), param.getAction(), param.getSpeed());
+        } catch (Exception e) {
+            log.error("getPtz-error,e={},stackTrace={}", e.getMessage(), e.getStackTrace());
+            e.printStackTrace();
+        }
+    }
+
+    @ApiOperation("获取屏幕快照")
+    @PostMapping("/screenshot")
+    public void getScreenshot(@RequestBody BaseParam param) {
+        try {
+            hikvisionSupport.getScreenshot(param.getIp(), param.getUsername(), param.getPassword());
         } catch (Exception e) {
             log.error("getPtz-error,e={},stackTrace={}", e.getMessage(), e.getStackTrace());
             e.printStackTrace();

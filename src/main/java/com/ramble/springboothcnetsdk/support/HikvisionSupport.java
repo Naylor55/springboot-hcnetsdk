@@ -313,5 +313,27 @@ public class HikvisionSupport {
         loginOut(loginHandler);
     }
 
+    /**
+     * 获取屏幕快照
+     *
+     * @param m_sDeviceIP
+     * @param m_sUsername
+     * @param m_sPassword
+     * @throws BizServiceException
+     */
+    public void getScreenshot(String m_sDeviceIP, String m_sUsername, String m_sPassword) throws BizServiceException {
+        int loginHandler = login(m_sDeviceIP, m_sUsername, m_sPassword);
+        HCNetSDK.NET_DVR_JPEGPARA jpegParam = new HCNetSDK.NET_DVR_JPEGPARA();
+        jpegParam.wPicQuality = 0;
+        String filePath = "D:\\temp\\1.jpeg";
+        boolean result = hCNetSDK.NET_DVR_CaptureJPEGPicture(loginHandler, 1, jpegParam, filePath.getBytes());
+        if (!result) {
+            int i = hCNetSDK.NET_DVR_GetLastError();
+            IntByReference errorInt = new IntByReference(i);
+            String msg = hCNetSDK.NET_DVR_GetErrorMsg(errorInt);
+            log.debug("changeDirection失败，错误码：{}，{}", i, msg);
+        }
+    }
+
 
 }
