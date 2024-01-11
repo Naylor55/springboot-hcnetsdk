@@ -98,12 +98,26 @@ public class HikvisionSupport {
             userData.setDateTime(LocalDateTime.now());
             Memory m = new Memory(1024);
             m.setWideString(0, JSON.toJSONString(userData));
-            hCNetSDK.NET_DVR_SetDVRMessageCallBack_V31(callBackV31, m);
+            boolean setMegCallBackResult = hCNetSDK.NET_DVR_SetDVRMessageCallBack_V31(callBackV31, m);
+            log.info("设置事件消息/报警信息回调结果：{}", setMegCallBackResult);
 
-            hCNetSDK.NET_DVR_SetConnectTime(10, 1);
-            hCNetSDK.NET_DVR_SetReconnect(100, true);
+            //dwInterval：重连间隔，单位毫秒；bEnableRecon ：是否允许重连
+            boolean setReconnectResult = hCNetSDK.NET_DVR_SetReconnect(100, true);
+            log.info("设置重连设置结果：{}", setReconnectResult);
+
+            //dwWaitTime：超时时间，单位毫秒，取值范围[300,75000]，实际最大超时时间因系统的connect超时时间而不同；dwTryTimes：重连次数
+            boolean setConnectResult = hCNetSDK.NET_DVR_SetConnectTime(3000, 1);
+            log.info("设置连接超时时间结果：{}", setConnectResult);
+
+
             //启动SDK写日志 日志的等级（默认为0）：0-表示关闭日志，1-表示只输出ERROR错误日志，2-输出ERROR错误信息和DEBUG调试信息，3-输出ERROR错误信息、DEBUG调试信息和INFO普通信息等所有信息
-            hCNetSDK.NET_DVR_SetLogToFile(3, System.getProperty("user.dir")+"/hksdkLog", false);
+            boolean setLogResult = hCNetSDK.NET_DVR_SetLogToFile(3, System.getProperty("user.dir") + "/hksdkLog", false);
+            log.info("设置日志文件结果：{}", setLogResult);
+
+            //异常回调
+            boolean setExceptionCallBackResult = hCNetSDK.NET_DVR_SetExceptionCallBack_V30(0, 0, new ExceptionCallBack(), null);
+            log.info("设置异常回调结果：{}", setExceptionCallBackResult);
+
             log.info("============== InitHikvisionSDK init success ====================");
         }
     }
@@ -363,7 +377,7 @@ public class HikvisionSupport {
      */
     public String getSdkStatus(String m_sDeviceIP, String m_sUsername, String m_sPassword) throws BizServiceException {
         String info = "";
-       // int loginHandler = login(m_sDeviceIP, m_sUsername, m_sPassword);
+        // int loginHandler = login(m_sDeviceIP, m_sUsername, m_sPassword);
         HCNetSDK.NET_DVR_SDKSTATE sdkState = new HCNetSDK.NET_DVR_SDKSTATE();
         //获取当前SDK状态信息
         boolean result = hCNetSDK.NET_DVR_GetSDKState(sdkState);
