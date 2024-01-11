@@ -7,6 +7,7 @@ import com.sun.jna.ptr.IntByReference;
 import com.sun.jna.ptr.ShortByReference;
 import com.sun.jna.win32.StdCallLibrary;
 
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -8258,7 +8259,7 @@ DVR实现巡航数据结构
     /***API函数声明,详细说明见API手册***/
     public static interface FRealDataCallBack_V30 extends Callback {
         public void invoke(int lRealHandle, int dwDataType,
-                           ByteByReference pBuffer, int dwBufSize, Pointer pUser);
+                           Pointer pBuffer, int dwBufSize, Pointer pUser);
     }
 
     public static interface FMSGCallBack extends Callback {

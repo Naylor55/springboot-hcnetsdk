@@ -1,17 +1,23 @@
 package com.ramble.springboothcnetsdk.support;
 
 import com.alibaba.fastjson2.JSON;
+import com.ramble.springboothcnetsdk.dto.DeviceLoginInfoDto;
 import com.ramble.springboothcnetsdk.dto.LoginResultDto;
 import com.ramble.springboothcnetsdk.dto.MessageCallBackUserDataDto;
 import com.ramble.springboothcnetsdk.dto.PtzDto;
 import com.ramble.springboothcnetsdk.handler.exception.BizServiceException;
 import com.ramble.springboothcnetsdk.lib.HCNetSDK;
+import com.ramble.springboothcnetsdk.lib.PlayCtrl;
 import com.ramble.springboothcnetsdk.util.OSUtils;
 import com.sun.jna.Memory;
+import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.IntByReference;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.StringUtils;
 
+import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
@@ -29,7 +35,11 @@ import java.util.Optional;
 
 @Slf4j
 public class HikvisionSupport {
+
+
     private HCNetSDK hCNetSDK;
+
+    private PlayCtrl playCtrl;
 
     /**
      * 构造函数中初始化SDK
@@ -120,8 +130,53 @@ public class HikvisionSupport {
 
             log.info("============== InitHikvisionSDK init success ====================");
         }
+
+        //加载播放库
+        loadPlayLib(true);
     }
 
+    /**
+     * 加载播放库
+     *
+     * @param enable 是否允许加载播放库，基于自身业务场景传值
+     */
+    private void loadPlayLib(boolean enable) {
+        if (!enable) {
+            return;
+        }
+        try {
+            String userDir = System.getProperty("user.dir");
+            log.info("加载播放库-userDir={}", userDir);
+            String osPrefix = OSUtils.getOsPrefix();
+            String playLibPath = "";
+            if (osPrefix.toLowerCase().startsWith("win32-x86")) {
+                //playLibPath = File.separator + "sdk" + File.separator + "hkwin32" + File.separator;
+            } else if (osPrefix.toLowerCase().startsWith("win32-amd64")) {
+                playLibPath = File.separator + "sdk" + File.separator + "hkwin64" + File.separator + "PlayCtrl.dll" ;
+            } else if (osPrefix.toLowerCase().startsWith("linux-i386")) {
+                //playLibPath = File.separator + "sdk" + File.separator + "hklinux32" + File.separator+"PlayCtrl.dll";
+            } else if (osPrefix.toLowerCase().startsWith("linux-amd64")) {
+                playLibPath = File.separator + "sdk" + File.separator + "hklinux64" + File.separator + "libPlayCtrl.so";
+            } else if (osPrefix.toLowerCase().startsWith("arm-linux-i386")) {
+                //playLibPath = File.separator + "sdk" + File.separator + "hkarmlinux32" + File.separator+"libPlayCtrl.so;
+            } else if (osPrefix.toLowerCase().startsWith("arm-linux-amd64")) {
+                playLibPath = File.separator + "sdk" + File.separator + "hkarmlinux64" + File.separator + "libPlayCtrl.so" ;
+            } else {
+                log.error("不受支持的操作系统，播放库加载失败");
+            }
+            if (StringUtils.hasText(playLibPath)) {
+                playCtrl = Native.load(userDir + playLibPath, PlayCtrl.class);
+                log.info("播放库加载成功");
+            }
+        } catch (UnsatisfiedLinkError | IllegalAccessError | Exception e) {
+            log.error("加载播放库发生异常，msg={},stackTrace={}", e.getMessage(), e.getStackTrace());
+        }
+    }
+
+
+    public PlayCtrl getPlayCtrl() {
+        return this.playCtrl;
+    }
 
     /**
      * 登录
@@ -391,8 +446,36 @@ public class HikvisionSupport {
             log.error("changeDirection失败，错误码：{}，{}", i, msg);
         }
         return info;
-
     }
 
 
+    /**
+     * 获取实时预览
+     *
+     * @param loginInfo
+     * @param channelId
+     */
+    public void getRealPlay(DeviceLoginInfoDto loginInfo, int channelId) throws BizServiceException {
+        int loginHandler = login(loginInfo.getIp(), loginInfo.getUsername(), loginInfo.getPassword());
+        HCNetSDK.NET_DVR_PREVIEWINFO strClientInfo = new HCNetSDK.NET_DVR_PREVIEWINFO();
+        strClientInfo.read();
+        strClientInfo.hPlayWnd = 0;  //窗口句柄，从回调取流不显示一般设置为空
+        strClientInfo.lChannel = channelId == 0 ? 1 : channelId;  //通道号
+        strClientInfo.dwStreamType = 0; //0-主码流，1-子码流，2-三码流，3-虚拟码流，以此类推
+        strClientInfo.dwLinkMode = 0; //连接方式：0- TCP方式，1- UDP方式，2- 多播方式，3- RTP方式，4- RTP/RTSP，5- RTP/HTTP，6- HRUDP（可靠传输） ，7- RTSP/HTTPS，8- NPQ
+        strClientInfo.bBlocked = 1;
+        strClientInfo.byProtoType = 0;
+        strClientInfo.write();
+
+        //开启预览
+        int lPlay = hCNetSDK.NET_DVR_RealPlay_V40(loginHandler, strClientInfo, new RealDataCallBack(), null);
+        if (lPlay == -1) {
+            int i = hCNetSDK.NET_DVR_GetLastError();
+            IntByReference errorInt = new IntByReference(i);
+            String msg = hCNetSDK.NET_DVR_GetErrorMsg(errorInt);
+            log.error("changeDirection失败，错误码：{}，{}", i, msg);
+            return;
+        }
+        log.info("取流成功");
+    }
 }

@@ -21,6 +21,7 @@ public class OSUtils {
     // 获取操作平台信息
     public static String getOsPrefix() {
         String arch = System.getProperty("os.arch").toLowerCase();
+        log.info("arch is : {}", arch);
         final String name = System.getProperty("os.name");
         String osPrefix;
         switch (Platform.getOSType()) {
@@ -38,6 +39,9 @@ public class OSUtils {
                 }
                 boolean arm = Platform.isARM();
                 log.info("is arm ={}", arm);
+                if (arm) {
+                    osPrefix = "arm-" + "linux-" + arch;
+                }
                 osPrefix = "linux-" + arch;
             }
             break;
