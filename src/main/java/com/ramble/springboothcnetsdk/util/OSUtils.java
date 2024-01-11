@@ -36,6 +36,8 @@ public class OSUtils {
                 } else if ("x86_64".equals(arch)) {
                     arch = "amd64";
                 }
+                boolean arm = Platform.isARM();
+                log.info("is arm ={}", arm);
                 osPrefix = "linux-" + arch;
             }
             break;
@@ -56,7 +58,7 @@ public class OSUtils {
             break;
 
         }
-
+        log.info("osPrefix:{}", osPrefix);
         return osPrefix;
     }
 
@@ -103,6 +105,7 @@ public class OSUtils {
             //方式二：配置LD_LIBRARY_PATH环境变量加载库文件；配置/etc/ld.so.conf，加上你自己的Java工程所需要的so文件的路径
             //针对方式二，无需添加前缀，程序会从linux系统的so共享库中查找libhcnetsdk.so
             loadLibrary = "";
+            //loadLibrary = System.getProperty("user.dir") + File.separator + "sdk" + File.separator + "hklinux64" + File.separator;
             library = "libhcnetsdk.so";
         }
 

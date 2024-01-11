@@ -90,4 +90,17 @@ public class HikvisionController {
         }
     }
 
+    @ApiOperation("获取SDK当前状态")
+    @PostMapping("/status")
+    public String getSdkStatus(@RequestBody BaseParam param) {
+        try {
+            return hikvisionSupport.getSdkStatus(param.getIp(), param.getUsername(), param.getPassword());
+        } catch (Exception e) {
+            log.error("getPtz-error,e={},stackTrace={}", e.getMessage(), e.getStackTrace());
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+
 }

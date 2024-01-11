@@ -21,8 +21,9 @@ import java.util.List;
  * author      cml
  * Email       liangchen_beijing@163.com
  * Description  声明一个接口，通过继承 StdCallLibrary 来和Native代码进行交互。接口内部需要一个公共静态常量：INSTANCE，通过这个常量，就可以获得这个接口的实例，从而使用接口的方法，也就是调用外部dll/so的函数
+ * windows 下可继承 Library 或者 StdCallLibrary ，但是linux 下必须继承 Library ，否则报异常：Unrecognized calling convention:
  */
-public interface HCNetSDK extends StdCallLibrary {
+public interface HCNetSDK extends Library {
     HCNetSDK INSTANCE = (HCNetSDK) Native.load(OSUtils.getLoadLibrary(), HCNetSDK.class);
 
     public static class SdkStructure extends Structure {

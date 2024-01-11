@@ -66,8 +66,8 @@ public class HikvisionSupport {
                 HCNetSDK.BYTE_ARRAY ptrByteArray1 = new HCNetSDK.BYTE_ARRAY(256);
                 HCNetSDK.BYTE_ARRAY ptrByteArray2 = new HCNetSDK.BYTE_ARRAY(256);
                 //这里是库的绝对路径，请根据实际情况修改，注意改路径必须有访问权限
-                String strPath1 = System.getProperty("user.dir") + "/hkliblinux64/libcrypto.so.1.1";
-                String strPath2 = System.getProperty("user.dir") + "/hkliblinux64/libssl.so.1.1";
+                String strPath1 = System.getProperty("user.dir") + "/hklinux64/libcrypto.so.1.1";
+                String strPath2 = System.getProperty("user.dir") + "/hklinux64/libssl.so.1.1";
 
                 System.arraycopy(strPath1.getBytes(), 0, ptrByteArray1.byValue, 0, strPath1.length());
                 ptrByteArray1.write();
@@ -77,7 +77,7 @@ public class HikvisionSupport {
                 ptrByteArray2.write();
                 hCNetSDK.NET_DVR_SetSDKInitCfg(4, ptrByteArray2.getPointer());
 
-                String strPathCom = System.getProperty("user.dir") + "/hkliblinux64/HCNetSDKCom/";
+                String strPathCom = System.getProperty("user.dir") + "/hklinux64/HCNetSDKCom/";
                 HCNetSDK.NET_DVR_LOCAL_SDK_PATH struComPath = new HCNetSDK.NET_DVR_LOCAL_SDK_PATH();
                 System.arraycopy(strPathCom.getBytes(), 0, struComPath.sPath, 0, strPathCom.length());
                 struComPath.write();
@@ -105,7 +105,6 @@ public class HikvisionSupport {
             log.info("============== InitHikvisionSDK init success ====================");
         }
     }
-
 
 
     /**
@@ -346,8 +345,37 @@ public class HikvisionSupport {
             int i = hCNetSDK.NET_DVR_GetLastError();
             IntByReference errorInt = new IntByReference(i);
             String msg = hCNetSDK.NET_DVR_GetErrorMsg(errorInt);
-            log.debug("changeDirection失败，错误码：{}，{}", i, msg);
+            log.error("changeDirection失败，错误码：{}，{}", i, msg);
         }
+    }
+
+
+    /**
+     * 获取当前sdk状态
+     *
+     * @param m_sDeviceIP
+     * @param m_sUsername
+     * @param m_sPassword
+     * @return
+     * @throws BizServiceException
+     */
+    public String getSdkStatus(String m_sDeviceIP, String m_sUsername, String m_sPassword) throws BizServiceException {
+        String info = "";
+       // int loginHandler = login(m_sDeviceIP, m_sUsername, m_sPassword);
+        HCNetSDK.NET_DVR_SDKSTATE sdkState = new HCNetSDK.NET_DVR_SDKSTATE();
+        //获取当前SDK状态信息
+        boolean result = hCNetSDK.NET_DVR_GetSDKState(sdkState);
+        if (result) {
+            sdkState.read();
+            info = JSON.toJSONString(sdkState);
+        } else {
+            int i = hCNetSDK.NET_DVR_GetLastError();
+            IntByReference errorInt = new IntByReference(i);
+            String msg = hCNetSDK.NET_DVR_GetErrorMsg(errorInt);
+            log.error("changeDirection失败，错误码：{}，{}", i, msg);
+        }
+        return info;
+
     }
 
 
