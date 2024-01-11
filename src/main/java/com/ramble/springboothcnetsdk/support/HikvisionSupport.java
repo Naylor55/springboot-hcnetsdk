@@ -66,8 +66,8 @@ public class HikvisionSupport {
                 HCNetSDK.BYTE_ARRAY ptrByteArray1 = new HCNetSDK.BYTE_ARRAY(256);
                 HCNetSDK.BYTE_ARRAY ptrByteArray2 = new HCNetSDK.BYTE_ARRAY(256);
                 //这里是库的绝对路径，请根据实际情况修改，注意改路径必须有访问权限
-                String strPath1 = System.getProperty("user.dir") + "/hklinux64/libcrypto.so.1.1";
-                String strPath2 = System.getProperty("user.dir") + "/hklinux64/libssl.so.1.1";
+                String strPath1 = System.getProperty("user.dir") + "/sdk/hklinux64/libcrypto.so.1.1";
+                String strPath2 = System.getProperty("user.dir") + "/sdk/hklinux64/libssl.so.1.1";
 
                 System.arraycopy(strPath1.getBytes(), 0, ptrByteArray1.byValue, 0, strPath1.length());
                 ptrByteArray1.write();
@@ -77,7 +77,7 @@ public class HikvisionSupport {
                 ptrByteArray2.write();
                 hCNetSDK.NET_DVR_SetSDKInitCfg(4, ptrByteArray2.getPointer());
 
-                String strPathCom = System.getProperty("user.dir") + "/hklinux64/HCNetSDKCom/";
+                String strPathCom = System.getProperty("user.dir") + "/sdk/hklinux64/HCNetSDKCom/";
                 HCNetSDK.NET_DVR_LOCAL_SDK_PATH struComPath = new HCNetSDK.NET_DVR_LOCAL_SDK_PATH();
                 System.arraycopy(strPathCom.getBytes(), 0, struComPath.sPath, 0, strPathCom.length());
                 struComPath.write();
@@ -88,20 +88,22 @@ public class HikvisionSupport {
         }
         //初始化sdk
         boolean isOk = hCNetSDK.NET_DVR_Init();
-        //注册报警信息回调
-        HCNetSDK.FMSGCallBack_V31 callBackV31 = new MsgCallBackFor30();
-        MessageCallBackUserDataDto userData = new MessageCallBackUserDataDto();
-        userData.setDesc("用户自定义数据");
-        userData.setDateTime(LocalDateTime.now());
-        Memory m = new Memory(1024);
-        m.setWideString(0, JSON.toJSONString(userData));
-        hCNetSDK.NET_DVR_SetDVRMessageCallBack_V31(callBackV31, m);
-
-        hCNetSDK.NET_DVR_SetConnectTime(10, 1);
-        hCNetSDK.NET_DVR_SetReconnect(100, true);
         if (!isOk) {
             log.error("=================== InitHikvisionSDK init fail ===================");
         } else {
+            //注册报警信息回调
+            HCNetSDK.FMSGCallBack_V31 callBackV31 = new MsgCallBackFor30();
+            MessageCallBackUserDataDto userData = new MessageCallBackUserDataDto();
+            userData.setDesc("用户自定义数据");
+            userData.setDateTime(LocalDateTime.now());
+            Memory m = new Memory(1024);
+            m.setWideString(0, JSON.toJSONString(userData));
+            hCNetSDK.NET_DVR_SetDVRMessageCallBack_V31(callBackV31, m);
+
+            hCNetSDK.NET_DVR_SetConnectTime(10, 1);
+            hCNetSDK.NET_DVR_SetReconnect(100, true);
+            //启动SDK写日志 日志的等级（默认为0）：0-表示关闭日志，1-表示只输出ERROR错误日志，2-输出ERROR错误信息和DEBUG调试信息，3-输出ERROR错误信息、DEBUG调试信息和INFO普通信息等所有信息
+            hCNetSDK.NET_DVR_SetLogToFile(3, System.getProperty("user.dir")+"/hksdkLog", false);
             log.info("============== InitHikvisionSDK init success ====================");
         }
     }
