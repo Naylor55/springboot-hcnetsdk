@@ -11,6 +11,7 @@
 
 * 内嵌海康网络设备sdk v6.1
 * 提供HCNetSDK接口，用于和Native代码（dll or so）进行交互
+* 提供PlayCtrl接口，用于视频预览、回放、抓图功能
 * 获取ptz
 * 改变ptz
 * 云台方向控制
