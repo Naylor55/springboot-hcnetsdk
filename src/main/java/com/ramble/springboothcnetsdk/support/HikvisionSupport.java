@@ -11,13 +11,13 @@ import com.ramble.springboothcnetsdk.lib.PlayCtrl;
 import com.ramble.springboothcnetsdk.util.OSUtils;
 import com.sun.jna.Memory;
 import com.sun.jna.Native;
-import com.sun.jna.Pointer;
+
 import com.sun.jna.ptr.IntByReference;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
 import java.io.File;
-import java.lang.reflect.InvocationTargetException;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
 import java.util.Optional;
@@ -52,6 +52,7 @@ public class HikvisionSupport {
             String userDir = System.getProperty("user.dir");
             log.info("InitSdk-userDir={}", userDir);
             String osPrefix = OSUtils.getOsPrefix();
+            log.info("InitSdk-osPrefix={}", osPrefix);
             if (osPrefix.toLowerCase().startsWith("linux-i386")) {
                 HCNetSDK.BYTE_ARRAY ptrByteArray1 = new HCNetSDK.BYTE_ARRAY(256);
                 HCNetSDK.BYTE_ARRAY ptrByteArray2 = new HCNetSDK.BYTE_ARRAY(256);
@@ -92,6 +93,28 @@ public class HikvisionSupport {
                 System.arraycopy(strPathCom.getBytes(), 0, struComPath.sPath, 0, strPathCom.length());
                 struComPath.write();
                 hCNetSDK.NET_DVR_SetSDKInitCfg(2, struComPath.getPointer());
+                log.info("第三方库加载完毕");
+            } else if (osPrefix.toLowerCase().startsWith("arm-linux")) {
+                HCNetSDK.BYTE_ARRAY ptrByteArray1 = new HCNetSDK.BYTE_ARRAY(256);
+                HCNetSDK.BYTE_ARRAY ptrByteArray2 = new HCNetSDK.BYTE_ARRAY(256);
+                //这里是库的绝对路径，请根据实际情况修改，注意改路径必须有访问权限
+                String strPath1 = System.getProperty("user.dir") + "/sdk/hkarmlinux64/libcrypto.so.1.1";
+                String strPath2 = System.getProperty("user.dir") + "/sdk/hkarmlinux64/libssl.so.1.1";
+
+                System.arraycopy(strPath1.getBytes(), 0, ptrByteArray1.byValue, 0, strPath1.length());
+                ptrByteArray1.write();
+                hCNetSDK.NET_DVR_SetSDKInitCfg(3, ptrByteArray1.getPointer());
+
+                System.arraycopy(strPath2.getBytes(), 0, ptrByteArray2.byValue, 0, strPath2.length());
+                ptrByteArray2.write();
+                hCNetSDK.NET_DVR_SetSDKInitCfg(4, ptrByteArray2.getPointer());
+
+                String strPathCom = System.getProperty("user.dir") + "/sdk/hkarmlinux64/HCNetSDKCom/";
+                HCNetSDK.NET_DVR_LOCAL_SDK_PATH struComPath = new HCNetSDK.NET_DVR_LOCAL_SDK_PATH();
+                System.arraycopy(strPathCom.getBytes(), 0, struComPath.sPath, 0, strPathCom.length());
+                struComPath.write();
+                hCNetSDK.NET_DVR_SetSDKInitCfg(2, struComPath.getPointer());
+                log.info("第三方库加载完毕");
             } else {
                 log.info("osPrefix={}", osPrefix);
             }
@@ -121,7 +144,13 @@ public class HikvisionSupport {
 
 
             //启动SDK写日志 日志的等级（默认为0）：0-表示关闭日志，1-表示只输出ERROR错误日志，2-输出ERROR错误信息和DEBUG调试信息，3-输出ERROR错误信息、DEBUG调试信息和INFO普通信息等所有信息
-            boolean setLogResult = hCNetSDK.NET_DVR_SetLogToFile(3, System.getProperty("user.dir") + "/hksdkLog", false);
+            String logPath = System.getProperty("user.dir") + "/hksdkLog";
+            File dir = new File(logPath);
+            if (!dir.exists()) {
+                boolean mkdir = dir.mkdir();
+                log.info("创建文件夹结果，{} ， {}", logPath, mkdir);
+            }
+            boolean setLogResult = hCNetSDK.NET_DVR_SetLogToFile(3, logPath, false);
             log.info("设置日志文件结果：{}", setLogResult);
 
             //异常回调
@@ -152,15 +181,15 @@ public class HikvisionSupport {
             if (osPrefix.toLowerCase().startsWith("win32-x86")) {
                 //playLibPath = File.separator + "sdk" + File.separator + "hkwin32" + File.separator;
             } else if (osPrefix.toLowerCase().startsWith("win32-amd64")) {
-                playLibPath = File.separator + "sdk" + File.separator + "hkwin64" + File.separator + "PlayCtrl.dll" ;
+                playLibPath = File.separator + "sdk" + File.separator + "hkwin64" + File.separator + "PlayCtrl.dll";
             } else if (osPrefix.toLowerCase().startsWith("linux-i386")) {
                 //playLibPath = File.separator + "sdk" + File.separator + "hklinux32" + File.separator+"PlayCtrl.dll";
             } else if (osPrefix.toLowerCase().startsWith("linux-amd64")) {
                 playLibPath = File.separator + "sdk" + File.separator + "hklinux64" + File.separator + "libPlayCtrl.so";
             } else if (osPrefix.toLowerCase().startsWith("arm-linux-i386")) {
                 //playLibPath = File.separator + "sdk" + File.separator + "hkarmlinux32" + File.separator+"libPlayCtrl.so;
-            } else if (osPrefix.toLowerCase().startsWith("arm-linux-amd64")) {
-                playLibPath = File.separator + "sdk" + File.separator + "hkarmlinux64" + File.separator + "libPlayCtrl.so" ;
+            } else if (osPrefix.toLowerCase().startsWith("arm-linux-aarch64")) {
+                playLibPath = File.separator + "sdk" + File.separator + "hkarmlinux64" + File.separator + "libPlayCtrl.so";
             } else {
                 log.error("不受支持的操作系统，播放库加载失败");
             }

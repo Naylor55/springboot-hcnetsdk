@@ -37,12 +37,12 @@ public class OSUtils {
                 } else if ("x86_64".equals(arch)) {
                     arch = "amd64";
                 }
+                osPrefix = "linux-" + arch;
                 boolean arm = Platform.isARM();
                 log.info("is arm ={}", arm);
                 if (arm) {
                     osPrefix = "arm-" + "linux-" + arch;
                 }
-                osPrefix = "linux-" + arch;
             }
             break;
             default: {
@@ -73,10 +73,14 @@ public class OSUtils {
                 || osPrefix.toLowerCase().startsWith("win32-amd64")) {
             osName = "win";
         } else if (osPrefix.toLowerCase().startsWith("linux-i386")
-                || osPrefix.toLowerCase().startsWith("linux-amd64")) {
+                || osPrefix.toLowerCase().startsWith("linux-amd64")
+                || osPrefix.toLowerCase().startsWith("arm-linux")
+        ) {
             osName = "linux";
+        } else {
+            log.error("unknown osName");
         }
-
+        log.info("osName={}", osName);
         return osName;
     }
 
@@ -110,6 +114,9 @@ public class OSUtils {
             //针对方式二，无需添加前缀，程序会从linux系统的so共享库中查找libhcnetsdk.so
             loadLibrary = "";
             //loadLibrary = System.getProperty("user.dir") + File.separator + "sdk" + File.separator + "hklinux64" + File.separator;
+            library = "libhcnetsdk.so";
+        } else if (osPrefix.toLowerCase().startsWith("arm-linux-aarch64")) {
+            loadLibrary = System.getProperty("user.dir") + File.separator + "sdk" + File.separator + "hkarmlinux64" + File.separator;
             library = "libhcnetsdk.so";
         }
 
