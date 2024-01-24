@@ -3,16 +3,7 @@ package com.ramble.springboothcnetsdk.handler.exception;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
-/**
- * Project     ngh-ptz-adapter
- * Package     com.nghsmart.nghptzadapter.handler.exception
- * Class       BizServiceException
- *
- * @author MingliangChen
- * Email       cnaylor@163.com
- * Description
- * @date 2023/7/7 9:38
- */
+
 
 @Data
 @EqualsAndHashCode(callSuper=false)

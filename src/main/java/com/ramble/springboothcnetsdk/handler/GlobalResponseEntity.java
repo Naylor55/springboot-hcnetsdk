@@ -5,16 +5,7 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 
-/**
- * Project     ngh-ptz-adapter
- * Package     com.nghsmart.nghptzadapter.handler
- * Class       GlobalResponseEntity
- *
- * @author MingliangChen
- * Email       cnaylor@163.com
- * Description
- * @date 2023/7/7 9:33
- */
+
 
 @Data
 @Accessors(chain = true)

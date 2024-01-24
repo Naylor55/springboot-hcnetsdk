@@ -14,16 +14,6 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Project     ngh-ptz-adapter
- * Package     com.nghsmart.nghptzadapter.handler.exception
- * Class       GlobalException
- *
- * @author MingliangChen
- * Email       cnaylor@163.com
- * Description
- * @date 2023/7/7 9:37
- */
 
 
 @RestControllerAdvice("com.nghsmart")

@@ -12,16 +12,7 @@ import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-/**
- * Project     ngh-ptz-adapter
- * Package     com.nghsmart.nghptzadapter.handler.response
- * Class       GlobalResponse
- *
- * @author MingliangChen
- * Email       cnaylor@163.com
- * Description
- * @date 2023/7/7 9:35
- */
+
 
 
 @Slf4j
